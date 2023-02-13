@@ -1,5 +1,5 @@
 # projeto-banco
-Criação de casos de testes para aplicação de banco do curso de testes de aplicação moderna com Cypress.
+Criação de casos de testes para aplicação de banco do curso de testes de aplicação moderna com Cypress em nível funcional.
 
 ## Endereço da aplicação
 https://barrigareact.wcaquino.me/
