@@ -5,15 +5,20 @@ import loc from '../../support/locators'
 import '../../support/commandsContas'
 
 describe('Should teste at a functional level', () => {
+before(() => {
+    cy.visit('https://barrigareact.wcaquino.me/');
+    cy.login();
+});
+
     beforeEach(() => {
-        cy.visit('https://barrigareact.wcaquino.me/');
-        
-        cy.login();
+        cy.get(loc.MENU.HOME).click()       
+        cy.resetApp();
+        cy.wait(1000)
         
         
     });
     it('Should create an account', () => {
-       cy.resetApp();
+       
        cy.acessarMenuConta();
         
         cy.inserirConta('Conta de teste');
@@ -50,20 +55,31 @@ describe('Should teste at a functional level', () => {
         cy.get(loc.MOVIMENTACAO.STATUS).click();
         cy.get(loc.MOVIMENTACAO.BTN_SALVAR).click();
         cy.get(loc.MESSAGE_SUCESS).should('contain', 'sucesso!');
-        // cy.get(loc.EXTRATO.LINHAS).should('have.length', 7)
+        cy.get(loc.EXTRATO.LINHAS).should('have.length', 7)
         cy.xpath(loc.EXTRATO.FN_XP_BUSCA_ELEMENTO('Desc', '123')).should("exist")
     });
 
-    it('Should get balance', () => {
+    it.only('Should get balance', () => {
         cy.get(loc.MENU.HOME).click();
         cy.xpath(loc.SALDO.FN_XP_SALDO_CONTA('Conta para saldo')).should('contain', '534,00');
-        
+
+        cy.get(loc.MENU.EXTRATO).click();
+        cy.xpath(loc.EXTRATO.FN_XP_ALTERAR_ELEMENTO('Movimentacao 1, calculo saldo')).click();
+        cy.get(loc.MOVIMENTACAO.DESCRICAO).should('have.value','Movimentacao 1, calculo saldo' )
+        cy.get(loc.MOVIMENTACAO.STATUS).click();
+        cy.get(loc.MOVIMENTACAO.BTN_SALVAR).click();
+        cy.get(loc.MESSAGE_SUCESS).should('contain', 'sucesso!');
+        cy.wait(1000)
+        cy.get(loc.MENU.HOME).click();
+        cy.xpath(loc.SALDO.FN_XP_SALDO_CONTA('Conta para saldo')).should('contain', '4.034,00');
+
     });
 
     it('Should remove an account', () => {
         cy.get(loc.MENU.EXTRATO).click();
-        cy.xpath(loc.EXTRATO.FN_XP_REMOVER_ELEMENTO('Desc')).click();
-        cy.get(loc.MESSAGE_SUCESS).should('contain' , 'sucesso')
+        cy.xpath(loc.EXTRATO.FN_XP_REMOVER_ELEMENTO('Movimentacao para exclusao')).click();
+        cy.get(loc.MESSAGE_SUCESS).should('contain' , 'sucesso');
+        
         
     });
 });
