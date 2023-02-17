@@ -1,7 +1,7 @@
 // @ts-ignore
 /// <reference types="cypress"/>
 
-
+const myDate = new Date(Date.now()).toLocaleString().split(',')[0];
 describe('Should teste at a functional level', () => {
 
 let token    
@@ -35,16 +35,10 @@ beforeEach(() => {
     });
 
     it('Should update an account', () => {
-        cy.request({
-            method: 'GET',
-            url:'/contas',
-            headers: { Authorization: `JWT ${token}`},
-            qs: {
-                nome: 'Conta para alterar'
-            }
-        }).then(res => {
+        cy.getContaByName('Conta para alterar')
+        .then(contaId => {
             cy.request({
-                url: `/contas/${res.body[0].id}`,
+                url: `/contas/${contaId}`,
                 method: 'PUT',
                 headers: { Authorization: `JWT ${token}`},
                 body:{
@@ -58,7 +52,7 @@ beforeEach(() => {
         
         
     });
-    it.only('Should not creat a an account with same name', () => {
+    it('Should not creat a an account with same name', () => {
         cy.request({
             url: '/contas',
             method: 'POST',
@@ -71,7 +65,6 @@ beforeEach(() => {
         
         
         cy.get('@response').then(res =>{
-            console.log(res)
             expect(res.status).to.be.equal(400)
             expect(res.body.error).to.be.equal('Já existe uma conta com esse nome!')
 
@@ -80,7 +73,27 @@ beforeEach(() => {
     });
 
     it('Should create a transaction', () => {
+        cy.getContaByName('Conta para movimentacoes')
+            .then(contaId => {
+                cy.request({
+                    method: 'POST',
+                    url: '/transacoes',
+                    headers: { Authorization: `JWT ${token}` },
+                    body: {
+                        conta_id: contaId,
+                        data_pagamento: myDate,
+                        data_transacao: myDate,
+                        descricao: "Mov",
+                        envolvido: "felipe",
+                        status: true,
+                        tipo: "REC",
+                        valor: "100",
+                    }
+                }).as('response')
         
+             })
+        cy.get('@response').its('status').should('be.equal', 201)
+        cy.get('@response').its('body.id').should('exist')
     });
 
     it('Should get balance', () => {
