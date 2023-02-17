@@ -24,16 +24,14 @@
 // -- This will overwrite an existing command --
 // Cypress.Commands.overwrite("visit", (originalFn, url, options) => { ... })
 import loc from '../support/locators'
-// @ts-ignore
+
 Cypress.Commands.add('clickAlert', (locator, message) =>{
-    // @ts-ignore
     cy.get(locator).click()
     cy.on('window:alert', msg =>{
         expect(msg).to.be.equal(message)
     })
 })
 
-// @ts-ignore
 Cypress.Commands.add('login', () =>{
     
     cy.get(loc.LOGIN.USER).type('felipegaldino21@gmail.com')
@@ -43,8 +41,38 @@ Cypress.Commands.add('login', () =>{
     cy.get(loc.MESSAGE_SUCESS).should('contain', 'Felipe Galdino')
 
 })
-// @ts-ignore
+
 Cypress.Commands.add('resetApp',() =>{
     cy.get(loc.MENU.SETTINGS).click()
     cy.get(loc.MENU.RESET).click()
+})
+
+
+Cypress.Commands.add('getToken', (user, passwd) => {
+    cy.request({
+        method: 'POST',
+        url: 'https://barrigarest.wcaquino.me/signin',
+        body: {
+            email: user,
+            redirecionar:false,
+            senha: passwd
+
+        }
+    }).its('body.token').should('not.be.empty')
+    .then(token => {
+        return token
+    })
+
+})
+
+Cypress.Commands.add('resetRest', () =>{
+    cy.getToken('felipegaldino21@gmail.com', 'Fgsa3316#')
+        .then(token =>{
+            cy.request({
+                method: 'GET',
+                url: 'https://barrigarest.wcaquino.me/reset',
+                headers: { Authorization: `JWT ${token}`}
+            })
+        })
+   
 })

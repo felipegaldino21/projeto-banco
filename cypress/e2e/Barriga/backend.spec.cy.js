@@ -3,37 +3,29 @@
 
 
 describe('Should teste at a functional level', () => {
-before(() => {
-    cy.visit('https://barrigareact.wcaquino.me/');
-    
+
+let token    
+
+before(() => { 
+    cy.getToken('felipegaldino21@gmail.com', 'Fgsa3316#')
+        .then(tkn => {
+            token = tkn
+        })
 });
 
-    beforeEach(() => {
-        
-        
-        
-    });
+beforeEach(() => { 
+    cy.resetRest()           
+});
     it('Should create an account', () => {
         cy.request({
+            url: 'https://barrigarest.wcaquino.me/contas',
             method: 'POST',
-            url: 'https://barrigarest.wcaquino.me/signin',
+            headers: { Authorization: `JWT ${token}`},
             body: {
-                email:"felipegaldino21@gmail.com",
-                redirecionar:false,
-                senha:"Fgsa3316#"
-
+                nome: 'Conta via rest'
             }
-        }).its('body.token').should('not.be.empty')
-        .then(token => {
-            cy.request({
-                url: 'https://barrigarest.wcaquino.me/contas',
-                method: 'POST',
-                headers: { Authorization: `JWT ${token}`},
-                body: {
-                    nome: 'Conta via rest'
-                }
-            }).as('response')
-        })
+        }).as('response')
+        
         cy.get('@response').then(res =>{
             expect(res.status).to.be.equal(201);
             expect(res.body).to.have.property('id')
