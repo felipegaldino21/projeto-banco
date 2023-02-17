@@ -33,7 +33,7 @@ Cypress.Commands.add('clickAlert', (locator, message) =>{
 })
 
 Cypress.Commands.add('login', () =>{
-    
+    cy.visit('https://barrigareact.wcaquino.me/')
     cy.get(loc.LOGIN.USER).type('felipegaldino21@gmail.com')
     cy.get(loc.LOGIN.PASSWORD).type('Fgsa3316#')
     cy.get(loc.LOGIN.BTN_LOGIN).click()
@@ -51,7 +51,7 @@ Cypress.Commands.add('resetApp',() =>{
 Cypress.Commands.add('getToken', (user, passwd) => {
     cy.request({
         method: 'POST',
-        url: 'https://barrigarest.wcaquino.me/signin',
+        url: '/signin',
         body: {
             email: user,
             redirecionar:false,
@@ -70,7 +70,7 @@ Cypress.Commands.add('resetRest', () =>{
         .then(token =>{
             cy.request({
                 method: 'GET',
-                url: 'https://barrigarest.wcaquino.me/reset',
+                url: '/reset',
                 headers: { Authorization: `JWT ${token}`}
             })
         })
