@@ -96,8 +96,52 @@ beforeEach(() => {
         cy.get('@response').its('body.id').should('exist')
     });
 
-    it('Should get balance', () => {
-        
+    it.only('Should get balance', () => {
+        cy.request({
+            url: '/saldo',
+            method: 'GET',
+            headers: { Authorization: `JWT ${token}` }
+        }).then( res => {
+            let saldoConta = null
+            res.body.forEach(c => {
+                if(c.conta ==='Conta para saldo') saldoConta = c.saldo
+            })
+            expect(saldoConta).to.be.equal('534.00')
+        })
+
+        cy.request({
+            method:'GET',
+            url:'/transacoes',
+            headers: { Authorization: `JWT ${token}` },
+            qs: { descricao: 'Movimentacao 1, calculo saldo'}
+        }).then(res =>{
+            cy.request({
+                url: `/transacoes/${res.body[0].id}`,
+                method: 'PUT',
+                headers: { Authorization: `JWT ${token}` },
+                body:{
+                    status:true,
+                    data_transacao: myDate,
+                    data_pagamento: myDate,
+                    descricao: res.body[0].descricao,
+                    envolvido: res.body[0].envolvido,
+                    valor: res.body[0].valor,
+                    conta_id: res.body[0].conta_id
+                } 
+            }).its('status').should('be.equal', 200)
+
+        })
+        cy.request({
+            url: '/saldo',
+            method: 'GET',
+            headers: { Authorization: `JWT ${token}` }
+        }).then( res => {
+            let saldoConta = null
+            res.body.forEach(c => {
+                if(c.conta ==='Conta para saldo') saldoConta = c.saldo
+            })
+            expect(saldoConta).to.be.equal('4034.00')
+        })
     });
 
     it('Should remove an account', () => {
